@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-CN">
+<html class="theme-next pisces use-motion" lang="zh-CN">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Hadoop," />
 
 
 
@@ -80,16 +80,16 @@
 
 
 <meta name="description" content="Nginx的安装与静态网站部署Nginx简介 Nginx是一款高性能的HTTP服务器/反向代理服务器及电子邮件服务器。官方测试能够支撑5万并发访问，并且CPU、内存等资源消耗却非常低，运行非常稳定。 Nginx应用场景  HTTP服务器。Nginx可以做网页静态服务器。 虚拟主机。 可以实现在一台服务器虚拟出多个网站。 反向代理，负载均衡。当单台服务器不能满足用户的请求时，需要用多台服务器集群可以">
-<meta name="keywords" content="BigData，虚拟化，分布式">
+<meta name="keywords" content="Hadoop">
 <meta property="og:type" content="article">
-<meta property="og:title" content="王范明的博客">
+<meta property="og:title" content="Nginx的安装与静态网站部署">
 <meta property="og:url" content="http://www.wangfanming.top/2018/11/04/Nginx反向代理与负载均衡/index.html">
 <meta property="og:site_name" content="王范明的博客">
 <meta property="og:description" content="Nginx的安装与静态网站部署Nginx简介 Nginx是一款高性能的HTTP服务器/反向代理服务器及电子邮件服务器。官方测试能够支撑5万并发访问，并且CPU、内存等资源消耗却非常低，运行非常稳定。 Nginx应用场景  HTTP服务器。Nginx可以做网页静态服务器。 虚拟主机。 可以实现在一台服务器虚拟出多个网站。 反向代理，负载均衡。当单台服务器不能满足用户的请求时，需要用多台服务器集群可以">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-11-04T15:17:50.099Z">
+<meta property="og:updated_time" content="2018-11-05T15:17:18.711Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="王范明的博客">
+<meta name="twitter:title" content="Nginx的安装与静态网站部署">
 <meta name="twitter:description" content="Nginx的安装与静态网站部署Nginx简介 Nginx是一款高性能的HTTP服务器/反向代理服务器及电子邮件服务器。官方测试能够支撑5万并发访问，并且CPU、内存等资源消耗却非常低，运行非常稳定。 Nginx应用场景  HTTP服务器。Nginx可以做网页静态服务器。 虚拟主机。 可以实现在一台服务器虚拟出多个网站。 反向代理，负载均衡。当单台服务器不能满足用户的请求时，需要用多台服务器集群可以">
 
 
@@ -98,7 +98,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -126,7 +126,7 @@
 
 
 
-  <title> | 王范明的博客</title>
+  <title>Nginx的安装与静态网站部署 | 王范明的博客</title>
   
 
 
@@ -238,7 +238,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Duncan">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://www.wangfanming.top/images/DQ0P5JH08G.jpg">
+      <meta itemprop="image" content="/uploads/DQ0P5JH08G.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -250,7 +250,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">Nginx的安装与静态网站部署</h1>
         
 
         <div class="post-meta">
@@ -262,7 +262,7 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-04T23:17:50+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-04T22:23:18+08:00">
                 2018-11-04
               </time>
             
@@ -272,6 +272,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -372,10 +394,45 @@
     
 
     
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持学习，坚持分享，您的支持将鼓励我继续创作。</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/uploads/wechatpay.png" alt="Duncan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/uploads/alipay.jpg" alt="Duncan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
 
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
+          
+        </div>
       
 
       
@@ -445,7 +502,7 @@
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
               <img class="site-author-image" itemprop="image"
-                src="http://www.wangfanming.top/images/DQ0P5JH08G.jpg"
+                src="/uploads/DQ0P5JH08G.jpg"
                 alt="Duncan" />
             
               <p class="site-author-name" itemprop="name">Duncan</p>
@@ -466,7 +523,25 @@
             
 
             
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">categories</span>
+                
+              </div>
+            
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
             
 
           </nav>
@@ -474,11 +549,35 @@
           
 
           
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/wangfanming" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
 
           
           
 
           
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.fa1c0n.cn/" title="fa1c0n的博客" target="_blank">fa1c0n的博客</a>
+                  </li>
+                
+              </ul>
+            </div>
           
 
           
@@ -534,7 +633,7 @@
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -581,6 +680,8 @@
   
 
 
+  
+
 
 
 
@@ -621,6 +722,11 @@
     <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
   
 
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
 
   
 
@@ -633,6 +739,13 @@
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
 
   
   <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
@@ -699,6 +812,10 @@
 
   
 
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
   
 
 </body>
