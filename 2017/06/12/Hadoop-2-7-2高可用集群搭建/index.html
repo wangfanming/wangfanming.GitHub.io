@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hadoop，HA,Zookeeper," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04) 以root用户身份进行配置 环境需求： JDK版本：1.7+ Hadoop版本：hadoop-2.7.2 zookeeper版本：zookeeper-3.4.5  详细配置   主机名IP Namenode Datanode Yarn Zookeeper JournalNode     node-1:192.168.111.130">
+<meta name="keywords" content="Hadoop，HA,Zookeeper">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)">
+<meta property="og:url" content="http://www.wangfanming.top/2017/06/12/Hadoop-2-7-2高可用集群搭建/index.html">
+<meta property="og:site_name" content="王范明的博客">
+<meta property="og:description" content="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04) 以root用户身份进行配置 环境需求： JDK版本：1.7+ Hadoop版本：hadoop-2.7.2 zookeeper版本：zookeeper-3.4.5  详细配置   主机名IP Namenode Datanode Yarn Zookeeper JournalNode     node-1:192.168.111.130">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/java_home.bmp">
+<meta property="og:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/环境变量.bmp">
+<meta property="og:updated_time" content="2018-11-05T15:45:32.081Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)">
+<meta name="twitter:description" content="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04) 以root用户身份进行配置 环境需求： JDK版本：1.7+ Hadoop版本：hadoop-2.7.2 zookeeper版本：zookeeper-3.4.5  详细配置   主机名IP Namenode Datanode Yarn Zookeeper JournalNode     node-1:192.168.111.130">
+<meta name="twitter:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/java_home.bmp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.wangfanming.top/2017/06/12/Hadoop-2-7-2高可用集群搭建/"/>
+
+
+
+
+
+  <title>Hadoop-2.7.2高可用集群搭建(Ubuntu14.04) | 王范明的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">王范明的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">成长中的程序员</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.wangfanming.top/2017/06/12/Hadoop-2-7-2高可用集群搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duncan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/DQ0P5JH08G.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王范明的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-12T22:45:23+08:00">
+                2017-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/bigdata/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Hadoop-2-7-2高可用集群搭建-Ubuntu14-04"><a href="#Hadoop-2-7-2高可用集群搭建-Ubuntu14-04" class="headerlink" title="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)"></a>Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)</h1><hr>
+<p><strong>以root用户身份进行配置</strong></p>
+<h3 id="环境需求："><a href="#环境需求：" class="headerlink" title="环境需求："></a>环境需求：</h3><ul>
+<li>JDK版本：1.7+</li>
+<li>Hadoop版本：hadoop-2.7.2</li>
+<li>zookeeper版本：zookeeper-3.4.5</li>
+</ul>
+<h4 id="详细配置"><a href="#详细配置" class="headerlink" title="详细配置"></a>详细配置</h4><table>
+<thead>
+<tr>
+<th>主机名IP</th>
+<th style="text-align:center">Namenode</th>
+<th style="text-align:right">Datanode</th>
+<th style="text-align:right">Yarn</th>
+<th style="text-align:right">Zookeeper</th>
+<th style="text-align:right">JournalNode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>node-1:192.168.111.130</td>
+<td style="text-align:center">是</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">否</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+</tr>
+<tr>
+<td>node-2:192.168.111.129</td>
+<td style="text-align:center">是</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+</tr>
+<tr>
+<td>node-3:192.168.111.128</td>
+<td style="text-align:center">否</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">是</td>
+</tr>
+</tbody>
+</table>
+<p>1、安装JDK</p>
+<p> (1)  下载 jdk-7u80-linux-x64.tar 文件</p>
+<p> (2)  解压缩文件 tar -zxvf jdk-7u80-linux-x64.tar(尽量使用jdk1.7)</p>
+<p> (3)  在 /etc/profile文件末尾，添加jdk的配置信息</p>
+<p> (4) 重新加载文件，使配置生效：#source /etc/profile</p>
+<p> 2、配置SSH免密登陆</p>
+<blockquote>
+<p>SSH免密钥原理：<br>      我们使用ssh-keygen在ServerA上生成私钥跟公钥，将生成的公钥拷贝到远程机器ServerB上后,就可以使用ssh命令无需密码登录到另外一台机器ServerB上。生成公钥与私钥有两种加密方式，第一种是rsa(默认)，还有一种是dsa,使用时两种方式随便选一种即可</p>
+</blockquote>
+<p>  (1) 安装SSH服务<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> apt-get install ssh</span><br></pre></td></tr></table></figure></p>
+<p>  (2) 在三个节点上分别都使用rsa加密生成密钥对<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> ssh-keygen -t rsa</span><br></pre></td></tr></table></figure></p>
+<p>   按3次Enter键后，会在/root/.ssh/下生成id_rsa (私钥)，和id_rsa.pub(公钥)</p>
+<p>  (3) 将node-1上，将id_rsa.pub读取到authorized_keys中(authorized_keys 第一次读入是不存在的)<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br></pre></td></tr></table></figure></p>
+<p>  (4) 分别将node-2和node-3上的公钥都读入到master的authorized_keys中</p>
+<pre><code>在node-2和node-3上：
+     #scp /root/.ssh/id_rsa.pub  master:/root/
+在node-1上：
+每收到一个公钥都读取一次(一个一个地写入文件)：
+     # cat /root/id_rsa.pub &gt;&gt; /root/.ssh/authorized_keys
+</code></pre><p>  (5) 将node-1上的authorized_keys发送到node-2和node-3，以实现三个节点之间的免密钥登录<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>scp /root/.ssh/authorized_keys   node-2:/root/.ssh/</span><br><span class="line"><span class="meta">#</span>scp /root/.ssh/authorized_keys   node-3:/root/.ssh/</span><br></pre></td></tr></table></figure></p>
+<p>  (6) 在3个节点上修改authorized_keys的权限：<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> chmod 600 ~/.ssh/authorized_keys</span><br></pre></td></tr></table></figure></p>
+<p> 3、Zookeeper集群搭建</p>
+<p>  (1) 下载zookeeper-3.4.9.tar.gz</p>
+<p>  (2)  解压<br>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>tar -zxvf zookeeper-3.4.9.tar.gz -C /home/</span><br></pre></td></tr></table></figure></p>
+<p>  (3) 修改zoo.cfg（可以使用zoo_sample.cfg来生成zoo.cfg）<br>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> cp zoo_sample.cfg zoo.cfg</span><br><span class="line"><span class="meta">#</span> vim zoo.cfg</span><br></pre></td></tr></table></figure></p>
+<p>   <strong>参数说明</strong>:</p>
+<ul>
+<li>tickTime: zookeeper中使用的基本时间单位, 毫秒值.</li>
+<li>dataDir: 数据目录. 可以是任意目录.</li>
+<li>dataLogDir: log目录, 同样可以是任意目录. 如果没有设置该参数, 将使用和dataDir相同的设置.</li>
+<li>clientPort: 监听client连接的端口号.</li>
+<li><p>server.X=A:B:C 其中X是一个数字, 表示这是第几号server. A是该server所在的IP地址. B配置该server和集群中的leader交换消息所使用的端口. C配置选举leader时所使用的端口. 由于配置的是伪集群模式, 所以各个server的B, C参数必须不同.</p>
+<p>(4). 根据zoo.cfg各自在节点上的 dataDir下添加myid</p>
+<pre><code>node-1：
+        #echo &quot;1&quot; &gt;&gt; /home/zookeeperData/myid
+node-2:
+        #echo &quot;2&quot; &gt;&gt; /home/zookeeperData/myid
+node-3:
+        #echo &quot;3&quot; &gt;&gt; /home/zookeeperData/myid
+</code></pre><p>(5) 在各个节点上开启zookeeper服务,并且查看服务是否成功启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>zkServer.sh start</span><br><span class="line"><span class="meta">#</span>zkServer.sh status</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>4、Hadoop集群的搭建</p>
+<p>   (1) 下载 hadoop-2.7.2.tar.gz,并解压<br>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf  hadoop-2.7.2.tar.gz -C /home/</span><br></pre></td></tr></table></figure></p>
+<p>   (2)修改如下配置文件(在/home/hadoop-2.7.2/etc/hadoop/下)</p>
+<p>   <strong>修改core-site.xml</strong><br>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">   &lt;property&gt;</span><br><span class="line">         &lt;name&gt;fs.defaultFS&lt;/name&gt;</span><br><span class="line">         &lt;value&gt;hdfs://nameserver&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">   &lt;property&gt;</span><br><span class="line">         &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;</span><br><span class="line">         &lt;value&gt;/home/hdfs_all/tmp/&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">   &lt;property&gt;</span><br><span class="line">         &lt;name&gt;io.file.buffer.size&lt;/name&gt;</span><br><span class="line">         &lt;value&gt;1024&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">   &lt;property&gt;</span><br><span class="line">         &lt;name&gt;ha.zookeeper.quorum&lt;/name&gt;</span><br><span class="line">         &lt;value&gt;node-1:2181,node-2:2181,node-3:2181&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line"> &lt;/configuration&gt;</span><br></pre></td></tr></table></figure></p>
+<p>   <strong>修改hdfs-site.xml</strong><br>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">            &lt;name&gt;dfs.nameservices&lt;/name&gt;</span><br><span class="line">            &lt;value&gt;nameserver&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">           &lt;name&gt;dfs.ha.namenodes.nameserver&lt;/name&gt;</span><br><span class="line">           &lt;value&gt;nn1,nn2&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">           &lt;name&gt;dfs.namenode.rpc-address.nameserver.nn1&lt;/name&gt;</span><br><span class="line">           &lt;value&gt;node-1:9000&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">            &lt;name&gt;dfs.namenode.http-address.nameserver.nn1&lt;/name&gt;</span><br><span class="line">            &lt;value&gt;node-1:50070&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">           &lt;name&gt;dfs.namenode.rpc-address.nameserver.nn2&lt;/name&gt;</span><br><span class="line">           &lt;value&gt;node-2:9000&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">            &lt;name&gt;dfs.namenode.http-address.nameserver.nn2&lt;/name&gt;</span><br><span class="line">            &lt;value&gt;node-2:50070&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">             &lt;name&gt;dfs.namenode.shared.edits.dir&lt;/name&gt;</span><br><span class="line">             &lt;value&gt;qjournal://node-1:8485;node-2:8485;node-3:8485/nameserver&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">    &lt;name&gt;dfs.journalnode.edits.dir&lt;/name&gt;</span><br><span class="line">              &lt;value&gt;/home/hdfs_all/journal&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">              &lt;name&gt;dfs.ha.automatic-failover.enabled&lt;/name&gt;</span><br><span class="line">              &lt;value&gt;true&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">                &lt;name&gt;dfs.client.failover.proxy.provider.nameserver&lt;/name&gt;</span><br><span class="line">                &lt;value&gt;org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">                 &lt;name&gt;dfs.ha.fencing.methods&lt;/name&gt;</span><br><span class="line">                 &lt;value&gt;sshfence&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">                &lt;name&gt;dfs.ha.fencing.ssh.private-key-files&lt;/name&gt;</span><br><span class="line">                &lt;value&gt;/root/.ssh/id_rsa&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">            &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;</span><br><span class="line">            &lt;value&gt;file:///home/hdfs_all/hdfs/name&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">            &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;</span><br><span class="line">            &lt;value&gt;file:///home/hdfs_all/hdfs/data&lt;/value&gt;</span><br><span class="line">        &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">           &lt;name&gt;dfs.replication&lt;/name&gt;</span><br><span class="line">           &lt;value&gt;2&lt;/value&gt;</span><br><span class="line">     &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure></p>
+<p>   <strong>修改mapred-site.xml</strong>(刚解压的文件中没有给文件，将mapred-site-tempalte.xml复制一份即可)<br>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">            &lt;name&gt;mapreduce.framework.name&lt;/name&gt;</span><br><span class="line">            &lt;value&gt;yarn&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure></p>
+<p>   <strong>修改yarn-site.xml</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">    </span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">&lt;!-- 开启RM高可用 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.ha.enabled&lt;/name&gt;</span><br><span class="line">&lt;value&gt;true&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!-- 指定RM的cluster id --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.cluster-id&lt;/name&gt;</span><br><span class="line">&lt;value&gt;yrc&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!-- 指定RM的名字 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.ha.rm-ids&lt;/name&gt;</span><br><span class="line">&lt;value&gt;rm1,rm2&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!-- 分别指定RM的地址 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.hostname.rm1&lt;/name&gt;</span><br><span class="line">&lt;value&gt;node-2&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.hostname.rm2&lt;/name&gt;</span><br><span class="line">&lt;value&gt;node-3&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!-- 指定zk集群地址 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.zk-address&lt;/name&gt;</span><br><span class="line">&lt;value&gt;node-1:2181,node-2:2181,node-3:2181&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;</span><br><span class="line">&lt;value&gt;mapreduce_shuffle&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>修改slaves</strong></p>
+<p>  删除<code>localhost</code>,添加如下内容：<br>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node-1</span><br><span class="line">node-2</span><br><span class="line">node-3</span><br></pre></td></tr></table></figure></p>
+<p><strong>修改JAVA_HOME</strong></p>
+<p>分别在文件hadoop-env.sh和yarn-env.sh中添加JAVA_HOME配置</p>
+<p><img src="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/java_home.bmp" alt=""></p>
+<p>5、将hadoop配置文件发送至另外两个节点<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>scp -r /home/hadoop-2.7.2  node-2:/home/</span><br><span class="line"><span class="meta">#</span>scp -r /home/hadoop-2.7.2  node-3:/home/</span><br></pre></td></tr></table></figure></p>
+<p>6、给Hadoop配置环境变量(完整的环境变量配置如下)</p>
+<p><img src="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/环境变量.bmp" alt=""></p>
+<p>7、将环境变量发送给另外两个节点<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>scp -r /etc/profile  node-2:/etc</span><br><span class="line"><span class="meta">#</span>scp -r /etc/profile  node-3:/etc</span><br></pre></td></tr></table></figure></p>
+<p><strong>在发送完成后，都要使用<code>source /etc/profile</code>命令重新加载环境变量</strong></p>
+<p>8、启动集群</p>
+<p><strong>按顺序执行以下操作</strong></p>
+<p>在node-1上：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>zkServer.sh start</span><br><span class="line"><span class="meta">#</span>zkServer.sh status(要确保zookeeper服务已经启动)</span><br><span class="line"><span class="meta">#</span>hadoop-daemons.sh start journalnode   (启动journalnode服务)</span><br><span class="line"><span class="meta">#</span>hdfs zkfc –formatZK(格式化zkfc,让在zookeeper中生成ha节点,只需在第一次启动集群是格式化即可)</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>hadoop namenode -format (格式化hdfs,也只在第一次启动集群时格式化)</span><br><span class="line"><span class="meta">#</span>hadoop-daemon.sh start namenode</span><br></pre></td></tr></table></figure></p>
+<p>在node-2上(设置node-2为备份的namenode,所以需要在node-2上启动namenode进程)：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">   #</span>hdfs namenode -bootstrapStandby(在第一次启动时执行)</span><br><span class="line"><span class="meta">#</span>hadoop-daemon.sh start namenode</span><br></pre></td></tr></table></figure></p>
+<p>启动datanode(任意节点都可以):<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>hadoop-daemons.sh start datanode</span><br></pre></td></tr></table></figure></p>
+<p>在node-3上启动yarn；<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>start-yarn.sh</span><br></pre></td></tr></table></figure></p>
+<p>启动zkfc服务(任意节点都可以):<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>hadoop-daemons.sh start zkfc</span><br></pre></td></tr></table></figure></p>
+<p>然后就可以Web进行访问了</p>
+<p><a href="http://node-1:50070" target="_blank" rel="noopener">http://node-1:50070</a></p>
+<p><a href="http://node-2:50070" target="_blank" rel="noopener">http://node-2:50070</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持学习，坚持分享，您的支持将鼓励我继续创作。</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/uploads/wechatpay.png" alt="Duncan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/uploads/alipay.jpg" alt="Duncan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop，HA/" rel="tag"># Hadoop，HA</a>
+          
+            <a href="/tags/Zookeeper/" rel="tag"># Zookeeper</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/12/MyCat分片/" rel="next" title="MyCat分片">
+                <i class="fa fa-chevron-left"></i> MyCat分片
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/04/Keepalived入门/" rel="prev" title="keepalived入门">
+                keepalived入门 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/DQ0P5JH08G.jpg"
+                alt="Duncan" />
+            
+              <p class="site-author-name" itemprop="name">Duncan</p>
+              <p class="site-description motion-element" itemprop="description">吾生也有涯，而知也无涯，以有涯随无涯，殆已。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">categories</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/wangfanming" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.fa1c0n.cn/" title="fa1c0n的博客" target="_blank">fa1c0n的博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hadoop-2-7-2高可用集群搭建-Ubuntu14-04"><span class="nav-number">1.</span> <span class="nav-text">Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境需求："><span class="nav-number">1.0.1.</span> <span class="nav-text">环境需求：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#详细配置"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">详细配置</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duncan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+
+</body>
+</html>

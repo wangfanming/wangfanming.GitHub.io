@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="keepalived," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="keepalived入门keepalived简介 &amp;emsp;&amp;emsp;keepalived是集群管理中保证集群高可用的一个服务软件，用来防止单点故障。   &amp;emsp;&amp;emsp;keepalived的作用是检测web服务器的状态，如果有一台web服务器死机，或工作出现故障，keepalived将检测到，并将有故障的web服务器从系统中剔除，当web服务器工作正常后，keepalived自动将">
+<meta name="keywords" content="keepalived">
+<meta property="og:type" content="article">
+<meta property="og:title" content="keepalived入门">
+<meta property="og:url" content="http://www.wangfanming.top/2018/10/04/Keepalived入门/index.html">
+<meta property="og:site_name" content="王范明的博客">
+<meta property="og:description" content="keepalived入门keepalived简介 &amp;emsp;&amp;emsp;keepalived是集群管理中保证集群高可用的一个服务软件，用来防止单点故障。   &amp;emsp;&amp;emsp;keepalived的作用是检测web服务器的状态，如果有一台web服务器死机，或工作出现故障，keepalived将检测到，并将有故障的web服务器从系统中剔除，当web服务器工作正常后，keepalived自动将">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep1.bmp">
+<meta property="og:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep2.bmp">
+<meta property="og:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep3.bmp">
+<meta property="og:updated_time" content="2018-11-05T15:39:44.276Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="keepalived入门">
+<meta name="twitter:description" content="keepalived入门keepalived简介 &amp;emsp;&amp;emsp;keepalived是集群管理中保证集群高可用的一个服务软件，用来防止单点故障。   &amp;emsp;&amp;emsp;keepalived的作用是检测web服务器的状态，如果有一台web服务器死机，或工作出现故障，keepalived将检测到，并将有故障的web服务器从系统中剔除，当web服务器工作正常后，keepalived自动将">
+<meta name="twitter:image" content="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep1.bmp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.wangfanming.top/2018/10/04/Keepalived入门/"/>
+
+
+
+
+
+  <title>keepalived入门 | 王范明的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">王范明的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">成长中的程序员</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.wangfanming.top/2018/10/04/Keepalived入门/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duncan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/DQ0P5JH08G.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王范明的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">keepalived入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-04T21:18:15+08:00">
+                2018-10-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/distributed/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="keepalived入门"><a href="#keepalived入门" class="headerlink" title="keepalived入门"></a>keepalived入门</h1><h2 id="keepalived简介"><a href="#keepalived简介" class="headerlink" title="keepalived简介"></a>keepalived简介</h2><blockquote>
+<p>&emsp;&emsp;keepalived是集群管理中保证集群高可用的一个服务软件，用来防止单点故障。</p>
+</blockquote>
+<blockquote>
+<p>&emsp;&emsp;keepalived的作用是检测web服务器的状态，如果有一台web服务器死机，<br>或工作出现故障，keepalived将检测到，并将有故障的web服务器从系统中剔除，当web服务器<br>工作正常后，keepalived自动将web服务器加入到服务器集群中，这些工作全部自动完成，不需要<br>人工干涉，需要人工做的只是修复故障的web服务器。</p>
+</blockquote>
+<blockquote>
+<p>&emsp;&emsp;keepalived是以VRRP协议位实现基础的，VRRP全称 Virtual Router<br>Redundancy Protocol，即虚拟路由冗余协议。</p>
+</blockquote>
+<blockquote>
+<p>&emsp;&emsp;虚拟路由冗余协议，可以认为是实现路由器高可用的协议，即将N台提供相同<br>功能的路由器组成的一个路由器组，这个组里面有一个master和多个backup，master上面有一个对外提供服务<br>的VIP（Virtual IPAddress,虚拟IP地址，该路由器所在局域网内其他机器的默认路由为该VIP），<br>master会发组播，当backup收不到VRRP包时，就认为master宕掉了，这时就需要根据VRRP的优先级来<br>就可以保证路由器的高可用了。</p>
+</blockquote>
+<h3 id="keepalived核心内容"><a href="#keepalived核心内容" class="headerlink" title="keepalived核心内容"></a>keepalived核心内容</h3><blockquote>
+<p>&emsp;&emsp;keepalived主要有三个模块，分别是core、check和VRRP。core模块为<br>keepalived的核心，负责主进程的启动、维护以及全局配置文件的加载和解析。check负责健康检查<br>，包括常见的各种检查。VRRP模块是来实现VRRP协议的。</p>
+</blockquote>
+<p>初始状态：</p>
+<blockquote>
+</blockquote>
+<p><img src="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep1.bmp" alt=""></p>
+<p>主机状态：</p>
+<blockquote>
+</blockquote>
+<p><img src="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep2.bmp" alt=""></p>
+<p>主机恢复：</p>
+<blockquote>
+</blockquote>
+<p><img src="https://github.com/wangfanming/wangfanming.GitHub.io/blob/master/image/keep3.bmp" alt=""></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持学习，坚持分享，您的支持将鼓励我继续创作。</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/uploads/wechatpay.png" alt="Duncan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/uploads/alipay.jpg" alt="Duncan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/keepalived/" rel="tag"># keepalived</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/12/Hadoop-2-7-2高可用集群搭建/" rel="next" title="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)">
+                <i class="fa fa-chevron-left"></i> Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/04/Nginx反向代理与负载均衡/" rel="prev" title="Nginx的安装与静态网站部署">
+                Nginx的安装与静态网站部署 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/DQ0P5JH08G.jpg"
+                alt="Duncan" />
+            
+              <p class="site-author-name" itemprop="name">Duncan</p>
+              <p class="site-description motion-element" itemprop="description">吾生也有涯，而知也无涯，以有涯随无涯，殆已。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">categories</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/wangfanming" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.fa1c0n.cn/" title="fa1c0n的博客" target="_blank">fa1c0n的博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#keepalived入门"><span class="nav-number">1.</span> <span class="nav-text">keepalived入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#keepalived简介"><span class="nav-number">1.1.</span> <span class="nav-text">keepalived简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#keepalived核心内容"><span class="nav-number">1.1.1.</span> <span class="nav-text">keepalived核心内容</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duncan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+
+</body>
+</html>

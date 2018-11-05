@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="MayCat," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="MyCat分片 MyCat简介 &amp;emsp;&amp;emsp;Mycat 背后是阿里曾经开源的知名产品——Cobar。 Cobar的核心功能和优势是MySQL数据库分片。&amp;emsp;&amp;emsp;Mycat 是基于 cobar 演变而来， 对 cobar 的代码进行了彻底的重构， 使用 NIO 重构了网络模块，并且优化了Buffer 内核， 增强了聚合，oin等基本特性， 同时兼容绝大多数数据库成为通用的">
+<meta name="keywords" content="MayCat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyCat分片">
+<meta property="og:url" content="http://www.wangfanming.top/2017/04/12/MyCat分片/index.html">
+<meta property="og:site_name" content="王范明的博客">
+<meta property="og:description" content="MyCat分片 MyCat简介 &amp;emsp;&amp;emsp;Mycat 背后是阿里曾经开源的知名产品——Cobar。 Cobar的核心功能和优势是MySQL数据库分片。&amp;emsp;&amp;emsp;Mycat 是基于 cobar 演变而来， 对 cobar 的代码进行了彻底的重构， 使用 NIO 重构了网络模块，并且优化了Buffer 内核， 增强了聚合，oin等基本特性， 同时兼容绝大多数数据库成为通用的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-11-05T15:41:34.165Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MyCat分片">
+<meta name="twitter:description" content="MyCat分片 MyCat简介 &amp;emsp;&amp;emsp;Mycat 背后是阿里曾经开源的知名产品——Cobar。 Cobar的核心功能和优势是MySQL数据库分片。&amp;emsp;&amp;emsp;Mycat 是基于 cobar 演变而来， 对 cobar 的代码进行了彻底的重构， 使用 NIO 重构了网络模块，并且优化了Buffer 内核， 增强了聚合，oin等基本特性， 同时兼容绝大多数数据库成为通用的">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.wangfanming.top/2017/04/12/MyCat分片/"/>
+
+
+
+
+
+  <title>MyCat分片 | 王范明的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">王范明的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">成长中的程序员</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.wangfanming.top/2017/04/12/MyCat分片/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duncan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/DQ0P5JH08G.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="王范明的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MyCat分片</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-12T22:02:25+08:00">
+                2017-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/distributed/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="MyCat分片"><a href="#MyCat分片" class="headerlink" title="MyCat分片"></a>MyCat分片</h1><hr>
+<h2 id="MyCat简介"><a href="#MyCat简介" class="headerlink" title="MyCat简介"></a>MyCat简介</h2><blockquote>
+<p>&emsp;&emsp;Mycat 背后是阿里曾经开源的知名产品——Cobar。 Cobar的核心功能和优势是MySQL数据库分片。<br>&emsp;&emsp;Mycat 是基于 cobar 演变而来， 对 cobar 的代码进行了彻底的重构， 使用 NIO 重构了网络模块，并且优化了Buffer 内核， 增强了聚合，oin等基本特性， 同时兼容绝大多数数据库成为通用的数据库中间件。简单的说， MyCAT 就是： 一个新颖的数据库中间件产品支持 mysql 集群，或者mariadbcluster， 提供高可用性数据分片集群。你可以像使用 mysql 一样使用 mycat。 对于开<br>发人员来说根本感觉不到mycat的存在。</p>
+</blockquote>
+<hr>
+<h2 id="环境需求"><a href="#环境需求" class="headerlink" title="环境需求"></a>环境需求</h2><ul>
+<li>JDK :  1.7及以上版本</li>
+<li>MySQL: mysql5.5以上版本</li>
+</ul>
+<p>###Mysql安装与启动步骤：</p>
+<ol>
+<li>将MySQL的服务端和客户端安装包(RPM)上传到服务器</li>
+<li>查询之前是否安装过MySQL<br><code># rpm -qa|grep mysql</code></li>
+<li>卸载旧版本的MySQL<br><code>rpm -e --nodeps XXX</code></li>
+<li>安装服务端<br><code>rpm -ivh MySQL-server-5.6.17-1.el6.x86_64.rpm</code></li>
+<li>安装客户端<br><code>rpm -ivh MySQL-client-5.6.17-1.el6.x86_64.rpm</code></li>
+<li>启动MySQL服务<br><code>service mysql start</code></li>
+<li>登陆MySQL(刚安装的Mysql密码在<code>/root/.mysql_secret</code>)<br><code>mysql -uroot -p密码</code></li>
+<li>设置远程登录权限<br><code>GRANT ALL PRIVILEGES ON *.* TO &#39;root&#39;@&#39;%&#39;IDENTIFIED BY &#39;123456&#39; WITH GRANT OPTION;</code><br><code>flush privileges;</code></li>
+</ol>
+<p>##MyCat分片</p>
+<p>####分片相关的概念</p>
+<ul>
+<li><p>逻辑库(schema) </p>
+<blockquote>
+<p>&emsp;&emsp;前面一节讲了数据库中间件， 通常对实际应用来说， 并不需要知道中间件的存在， 业务开发<br>人员只需要知道数据库的概念， 所以数据库中间件可以被看做是一个或多个数据库集群构成<br>的逻辑库。(可以理解为一个保存了数据真实地址的映射集合)。</p>
+</blockquote>
+</li>
+<li><p>逻辑表(table)</p>
+<blockquote>
+<p>&emsp;&emsp;既然有逻辑库，那么就会有逻辑表，分布式数据库中，对应用来说，读写数据的表就是逻辑表。逻辑表，可以是数据切分后，分布在一个或多个分片库中，也可以不做数据切分，不分片，只有一个表构成。<br>&emsp;<br><strong>分片表</strong>： 是指那些原有的很大数据的表，需要切分到多个数据库的表，这样， 每个分片都有一部分数据，所有分片构成了完整的数据。总而言之就是需要进行分片的表。<br>&emsp;<br><strong>非分片表</strong>： 一个数据库中并不是所有的表都很大，某些表是可以不用进行切分的， 非分片是相对分片表来说的， 就是那些不需要进行数据切分的表。</p>
+</blockquote>
+</li>
+<li><p>分片节点(dateNode)</p>
+<blockquote>
+<p>&emsp;&emsp;数据切分后，一个大表被分到不同的分片数据库上面，每个表所在的数据库就是分片节点（dataNode)。</p>
+</blockquote>
+</li>
+</ul>
+<p>-节点主机(dateHost)</p>
+<blockquote>
+<p>&emsp;&emsp;数据分片后，每个分片节点(dateNode)不一定都会独占一台机器，同一台机器上可以有多个分片数据库，这样一个或多个分片节点所在的机器就是节点主机,为了规避单节点并发数限制，尽量将读写压力高的分片节点均衡放在不同的节点主机。</p>
+</blockquote>
+<p>-分片规则(rule)</p>
+<blockquote>
+<p>&emsp;&emsp;一个大表被分成若干个分片表，就需要一定的规则，这样按照某种业务规则把数据分到某个分片的规则就是分片规则，数据切分选择选择合适的分片规则非常重要，将极大的避免后续数据处理的难度。</p>
+</blockquote>
+<p>###MyCat分片配置</p>
+<p>#####配置schema.xml</p>
+<blockquote>
+<p>schema 标签用于定义MyCat实例中的逻辑库<br>&emsp;<br>Table 标签定义了MyCat中的逻辑表<br>&emsp;<br>rule 用于指定分片规则，auto-sharding-long 的分片规则是按ID值的范围进行分片,1-5000000为第1片,5000001-10000000 为第 2 片….<br>&emsp;<br>dataNode标签定义了MyCat中的数据节点，也就是数据分片。<br>dataHost标签在mycat逻辑库中也是作为最底层的标签存在，直接定义了具体的数据库实例、读写分离配置和心跳语句。<br>schema.xml配置如下：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0"?&gt;</span><br><span class="line">&lt;!DOCTYPE mycat:schema SYSTEM "schema.dtd"&gt;</span><br><span class="line">&lt;mycat:schema xmlns:mycat="http://org.opencloudb/"&gt;</span><br><span class="line">&lt;schema name="PINYOUGOUDB" checkSQLschema="false" sqlMaxLimit="100"&gt;</span><br><span class="line">&lt;table name="tb_test" dataNode="dn1,dn2,dn3" rule="auto-sharding-long" /&gt;</span><br><span class="line">&lt;/schema&gt;</span><br><span class="line">    &lt;dataNode name="dn1" dataHost="localhost1" database="db1" /&gt;</span><br><span class="line">    &lt;dataNode name="dn2" dataHost="localhost1" database="db2" /&gt;</span><br><span class="line">    &lt;dataNode name="dn3" dataHost="localhost1" database="db3" /&gt;</span><br><span class="line">    &lt;dataHost name="localhost1" maxCon="1000" minCon="10" balance="0"</span><br><span class="line">    writeType="0" dbType="mysql" dbDriver="native" switchType="1"</span><br><span class="line">    slaveThreshold="100"&gt;</span><br><span class="line">&lt;heartbeat&gt;select user()&lt;/heartbeat&gt;</span><br><span class="line"></span><br><span class="line">&lt;writeHost host="hostM1" url="localhost:3306" user="root"</span><br><span class="line">password="123456"&gt;</span><br><span class="line">&lt;/writeHost&gt;</span><br><span class="line">&lt;/dataHost&gt;</span><br><span class="line">&lt;/mycat:schema&gt;</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p>#####配置server.xml<br>server.xml几乎保存了mycat需要的系统配置信息。最常见的是在此配置用户名、密码以及权限。<br>server.xml配置如下：<br>添加UTF-8字符集设置，否则存储中文会出现问号<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;property name="charset"&gt;utf8&lt;/property&gt;</span><br></pre></td></tr></table></figure></p>
+<p>修改user的设置，为TESTDB添加root、test用户<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;user name="test"&gt;</span><br><span class="line">&lt;property name="password"&gt;test&lt;/property&gt;</span><br><span class="line">&lt;property name="schemas"&gt;TESTDB&lt;/property&gt;</span><br><span class="line">&lt;/user&gt;</span><br><span class="line">&lt;user name="root"&gt;</span><br><span class="line">&lt;property name="password"&gt;123456&lt;/property&gt;</span><br><span class="line">&lt;property name="schemas"&gt;TESTDB&lt;/property&gt;</span><br><span class="line">&lt;/user&gt;</span><br></pre></td></tr></table></figure></p>
+<p>#####MyCat分片测试<br>进入逻辑库TESTDB<br><code># mysql -uroot -p123456 -P8066 -DTESTDB</code><br><code>show tables;</code>会发现已经有表<code>tb_test</code><br>执行以下语句创建一个表<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE tb_test (</span><br><span class="line">id BIGINT(20) NOT NULL,</span><br><span class="line">title VARCHAR(100) NOT NULL ,</span><br><span class="line">PRIMARY KEY (id)</span><br><span class="line">) ENGINE=INNODB DEFAULT CHARSET=utf8</span><br></pre></td></tr></table></figure></p>
+<p>在创建完成后，会对表<code>td_test</code>的结构进行初始化。查看物理数据库<code>db1,db2,db3</code>,会发现，每个物理数据库中都已经创建好了表<code>tb_test</code>。</p>
+<p>然后就可以向逻辑库中的逻辑表中插入数据，数据会按照分片规则进行分片存储。</p>
+<p>#####MyCat分片规则<br>rule.xml用于定义分片规则</p>
+<ol>
+<li>按主键范围分片(rang-long)</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;tableRule name="auto-sharding-long"&gt;</span><br><span class="line">    &lt;rule&gt;</span><br><span class="line">        &lt;columns&gt;id&lt;/columns&gt;</span><br><span class="line">        &lt;algorithm&gt;rang-long&lt;/algorithm&gt;</span><br><span class="line">    &lt;/rule&gt;</span><br><span class="line">&lt;/tableRule&gt;</span><br></pre></td></tr></table></figure>
+<p>配置文件详解：</p>
+<ul>
+<li>tableRule :用于定义固体某个表或某类表的分片规则名称</li>
+<li>column：用于定义分片的列</li>
+<li>algorithm：代表算法的名称</li>
+</ul>
+<p><strong>rang-long</strong>的定义：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;function name="rang-long"</span><br><span class="line">    class="org.opencloudb.route.function.AutoPartitionByLong"&gt;</span><br><span class="line">    &lt;property name="mapFile"&gt;autopartition-long.txt&lt;/property&gt;</span><br><span class="line">&lt;/function&gt;</span><br></pre></td></tr></table></figure>
+<p> <strong>autopartition-long.txt</strong>的定义<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> range start-end ,data node index</span><br><span class="line"><span class="meta">#</span> K=1000,M=10000.</span><br><span class="line">0-500M=0</span><br><span class="line">500M-1000M=1</span><br><span class="line">1000M-1500M=2</span><br></pre></td></tr></table></figure></p>
+<hr>
+<ol start="2">
+<li>一致性哈希murmur<br>当我们需要将数据平均分在几个分区中，需要使用一致性hash规则<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;function name="murmur"</span><br><span class="line">     class="org.opencloudb.route.function.PartitionByMurmurHash"&gt;</span><br><span class="line">    &lt;property name="seed"&gt;0&lt;/property&gt;&lt;!--     默认是 0 --&gt;</span><br><span class="line">    &lt;property name="count"&gt;3&lt;/property&gt;</span><br><span class="line">    &lt;!--要分片的数据库节点数量，必须指定，否则没法分片--&gt;</span><br><span class="line">    &lt;property name="virtualBucketTimes"&gt;160&lt;/property&gt;</span><br><span class="line">    &lt;!-- 一个实际的数据库节点被映射为这么多虚拟节点， 默认是 160 倍，也就是虚拟节点数是物理节点数的 160 倍 --&gt;</span><br><span class="line">&lt;!-- &lt;property name="weightMapFile"&gt;weightMapFile&lt;/property&gt; 节点的权重，没有指定权重的节点默认是1。以properties文件的格式填写， 以从 0 开始到 count-1的整数值也就是节点索引为key，以节点权重值为值。 所有权重值必须是正整数， 否则以 1 代替 --&gt;</span><br><span class="line">&lt;!-- &lt;property name="bucketMapPath"&gt;/etc/mycat/bucketMapPath&lt;/property&gt;</span><br><span class="line">用于测试时观察各物理节点与虚拟节点的分布情况， 如果指定了这个属性， 会把虚拟节点的 murmur hash 值与物理节点的映射按行输出到这个文件， 没有默认值， 如果不指定， 就不会输出任何东西 --&gt;</span><br><span class="line">&lt;/function&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>配置文件中表规则的定义：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;tableRule name="sharding-by-murmur"&gt;</span><br><span class="line">    &lt;rule&gt;</span><br><span class="line">    &lt;columns&gt;id&lt;/columns&gt;</span><br><span class="line">    &lt;algorithm&gt;murmur&lt;/algorithm&gt;</span><br><span class="line">    &lt;/rule&gt;</span><br><span class="line">&lt;/tableRule&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在这里是按照id进行hash运算，然后确定数据的分片存储位置</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持学习，坚持分享，您的支持将鼓励我继续创作。</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/uploads/wechatpay.png" alt="Duncan WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/uploads/alipay.jpg" alt="Duncan Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MayCat/" rel="tag"># MayCat</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/04/Maven中的依赖传递/" rel="next" title="Maven中的依赖传递">
+                <i class="fa fa-chevron-left"></i> Maven中的依赖传递
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/12/Hadoop-2-7-2高可用集群搭建/" rel="prev" title="Hadoop-2.7.2高可用集群搭建(Ubuntu14.04)">
+                Hadoop-2.7.2高可用集群搭建(Ubuntu14.04) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/DQ0P5JH08G.jpg"
+                alt="Duncan" />
+            
+              <p class="site-author-name" itemprop="name">Duncan</p>
+              <p class="site-description motion-element" itemprop="description">吾生也有涯，而知也无涯，以有涯随无涯，殆已。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">categories</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/wangfanming" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.fa1c0n.cn/" title="fa1c0n的博客" target="_blank">fa1c0n的博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MyCat分片"><span class="nav-number">1.</span> <span class="nav-text">MyCat分片</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MyCat简介"><span class="nav-number">1.1.</span> <span class="nav-text">MyCat简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#环境需求"><span class="nav-number">1.2.</span> <span class="nav-text">环境需求</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duncan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+
+</body>
+</html>
