@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next pisces use-motion" lang="zh-CN">
+<html class="theme-next mist use-motion" lang="zh-CN">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -97,7 +97,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Mist',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -187,6 +187,36 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
           </a>
         </li>
       
@@ -328,11 +358,7 @@
           
           Nginx的安装与静态网站部署Nginx简介
 Nginx是一款高性能的HTTP服务器/反向代理服务器及电子邮件服务器。官方测试能够支撑5万并发访问，并且CPU、内存等资源消耗却非常低，运行非常稳定。
-Nginx应用场景
 
-HTTP服务器。Nginx可以做网页静态服务器。
-虚拟主机。 可以实现在一台服务器虚拟出多个网站。
-反向代理，负载均衡。当单台服务器不能满足用户的请求时，需要用多台服务器集群可以
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -484,7 +510,7 @@ HTTP服务器。Nginx可以做网页静态服务器。
 &emsp;&emsp;keepalived是集群管理中保证集群高可用的一个服务软件，用来防止单点故障。
 
 
-&emsp;&emsp;keepalived的作用是检测web服务器的状态，如果有一台web服务器死机，或工作出现故障，keepalived将检测到，并将有故障的web服务器从系统中剔除，当web服务器工作正常后，keepalived自动将
+&emsp;&emsp;keepaliv
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -637,23 +663,7 @@ HTTP服务器。Nginx可以做网页静态服务器。
 环境需求：
 JDK版本：1.7+
 Hadoop版本：hadoop-2.7.2
-zookeeper版本：zookeeper-3.4.5
-
-详细配置
-
-
-主机名IP
-Namenode
-Datanode
-Yarn
-Zookeeper
-JournalNode
-
-
-
-
-node-1:192.168.111.130
-
+zookeeper版本：zo
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -803,7 +813,7 @@ node-1:192.168.111.130
           
           MyCat分片
 MyCat简介
-&emsp;&emsp;Mycat 背后是阿里曾经开源的知名产品——Cobar。 Cobar的核心功能和优势是MySQL数据库分片。&emsp;&emsp;Mycat 是基于 cobar 演变而来， 对 cobar 的代码进行了彻底的重构， 使用 NIO 重构了网络模块，并且优化了Buffer 内核， 增强了聚合，oin等基本特性， 同时兼容绝大多数数据库成为通用的
+&emsp;&emsp;Mycat 背后是阿里曾经开源的知名产品——Cobar。 Cobar的核心功能和优势是MySQL数据库分片。&emsp;&emsp;Mycat 
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -953,9 +963,7 @@ MyCat简介
           
           Maven中的依赖传递
 一、依赖范围scope
-Maven因为执行一系列编译、测试、和部署等操作，在不同的操作下使用的classpath不同，依赖范围就是控制依赖与三种classpath(编译classpath、测试classpath、运行classpath)的关系。
-
-一共有5种，compile(编译)、test(测试)、runtime(运行时)、provided、system不指定，则范围默认
+Maven因为执行一系列编译、测试、和部署等操作，在不同的操作下使用的classpath不同，依赖范围就是控制依赖与三种classpath(编译clas
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -1148,7 +1156,7 @@ Maven因为执行一系列编译、测试、和部署等操作，在不同的操
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
 
 
 
@@ -1255,13 +1263,6 @@ Maven因为执行一系列编译、测试、和部署等操作，在不同的操
   
   
 
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
-
   
 
   
@@ -1328,6 +1329,7 @@ Maven因为执行一系列编译、测试、和部署等操作，在不同的操
   
     <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
   
-
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
 </body>
 </html>
