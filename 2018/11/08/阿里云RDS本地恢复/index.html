@@ -97,7 +97,7 @@
 <meta property="og:image" content="http://www.wangfanming.top/uploads/20170614124546290.png">
 <meta property="og:image" content="http://www.wangfanming.top/uploads/20171117115030589.png">
 <meta property="og:image" content="http://www.wangfanming.top/uploads/20171117144056373.png">
-<meta property="og:updated_time" content="2018-11-08T15:55:56.933Z">
+<meta property="og:updated_time" content="2018-11-09T12:14:31.857Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="阿里云RDS本地恢复至MySQL">
 <meta name="twitter:description" content="阿里云RDS数据备份恢复至本地MySQL">
@@ -430,8 +430,11 @@
 <p><img src="/uploads/20171117115030589.png" alt=""></p>
 <p>4、修改<code>/data/mysql</code>所属用户和组</p>
 <p><code>chown -R mysql:mysql /data/mysql</code></p>
-<p>5、查看进程</p>
-<p><code>ps -ef |grep &#39;mysqld&#39;</code><br><img src="/uploads/20171117144056373.png" alt=""></p>
+<p>5、启动MySQL进程</p>
+<p><code>mysqld_safe --defaults-file=/data/mysql/backup-my.cnf --user=mysql --datadir=/data/mysql/ &amp;</code></p>
+<p>6、查看进程</p>
+<p><code>ps -ef |grep &#39;mysqld&#39;</code></p>
+<p><img src="/uploads/20171117144056373.png" alt=""></p>
 <h4 id="3、登陆数据库"><a href="#3、登陆数据库" class="headerlink" title="3、登陆数据库"></a>3、登陆数据库</h4><p><code>mysql -uroot</code></p>
 <blockquote>
 <p>直接登录，会发现登录失败，可在启动MySQL服务时，添加<code>--skip-grant-tables</code>,以跳过密码验证。（网上都说RDS备份的数据库，没有密码，我没发现，所以有此操作）</p>
